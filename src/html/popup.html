@@ -1,0 +1,23 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  	<head>
+		<title>TExtension</title>
+		<link rel="stylesheet" type="text/css" href="../style/TExtension.css">
+		
+		<script src="popup.js"></script>
+  	</head>
+  	<body>
+		<div id="options_table_div">
+			<table id="options_table">
+		  		<tr><td class="tall-td"><a href="send_text_box.html">Send a Text </a></td></tr>
+		  		<tr><td class="tall-td">Add Contacts </td></tr>
+		  		<tr><td class="tall-td">View Messages</td></tr>
+		  	</table>
+		</div>
+  	</body>
+</html>
