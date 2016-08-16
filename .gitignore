@@ -17,3 +17,21 @@ sftp-config.json
 
 # Authentication Details
 authdetails.json
+
+# Test Files
+test.json
+
+#Android studio - Source: http://stackoverflow.com/questions/16736856/
+*.apk
+*.ap_
+*.class
+./src/Android/bin/
+./src/Android/gen/
+./src/Android/build/
+.gradle/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/datasources.xml
+.idea/dataSources.ids
+local.properties
+

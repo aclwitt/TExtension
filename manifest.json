@@ -9,7 +9,9 @@
     "default_icon": "/src/images/phone_icon.png",
     "default_popup": "/src/html/popup.html"
   },
-
+  "permissions": [
+    "notifications"
+  ],
   "web_accessible_resources": [ 
       "/src/html/*",
       "/src/js/*",
