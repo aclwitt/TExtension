@@ -40,10 +40,11 @@
 		$error = socket_strerror($error_code);
 		die("Error #$error_code when accepting incoming connections on socket: $error\n");
 	}
+	echo "Connected!\n";
 	while (TRUE){
 		$msg = socket_read($socket,2048);
 		if ($msg === FALSE) break; 
-		echo "Message: " . $msg; 
+		if ($msg) echo $msg; 
 		sleep(1); 
 		// while($msg = socket_read($socket,100)){
 		// 	echo $msg; 
